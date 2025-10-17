@@ -1,0 +1,5 @@
+Copyright (c) 2025 Bråthen Hosting. All rights reserved.
+
+This software is proprietary and may not be copied, distributed,
+or modified without written permission from Bråthen Hosting.
+Unauthorized use or distribution is strictly prohibited.
