@@ -152,11 +152,48 @@ export default function Projects() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="reference">External Reference</Label>
+                    <Label htmlFor="manager">Select coustomer</Label>
+                    <Select>
+                      <SelectTrigger id="manager">
+                        <SelectValue placeholder="Select manager" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="john">TechCorp AS</SelectItem>
+                        <SelectItem value="jane">EventPro Solutions</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="date">Select start date</Label>
+                    <Input
+                      id="date"
+                      type="date"
+                      className="w-full"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="date">Select end date</Label>
+                    <Input
+                      id="date"
+                      type="date"
+                      className="w-full"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="reference">External reference</Label>
+                    <Input id="reference" placeholder="Optional" />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="reference">Extra notes</Label>
                     <Input id="reference" placeholder="Optional" />
                   </div>
                 </div>
               </div>
+
+              
 
               <div className="flex justify-end gap-3 pt-4 border-t">
                 <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
