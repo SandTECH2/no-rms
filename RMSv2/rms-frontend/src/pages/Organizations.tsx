@@ -1,25 +1,64 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Plus, Search, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-
-const organizations = [
-  {
-    id: "ORG001",
-    name: "Main Organization",
-    users: 12,
-    projects: 45,
-  },
-  {
-    id: "ORG002",
-    name: "Partner Network",
-    users: 5,
-    projects: 8,
-  },
-];
+import { Label } from "@/components/ui/label";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { api, Organization } from "@/lib/api";
 
 export default function Organizations() {
   const [searchQuery, setSearchQuery] = useState("");
+  const [organizations, setOrganizations] = useState<Organization[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [orgName, setOrgName] = useState("");
+
+  useEffect(() => {
+    let isMounted = true;
+    api
+      .getOrganizations()
+      .then((data) => {
+        if (isMounted) {
+          setOrganizations(data);
+          setError(null);
+        }
+      })
+      .catch((err) => {
+        if (isMounted) {
+          setError(err.message ?? "Failed to load organizations");
+        }
+      })
+      .finally(() => {
+        if (isMounted) {
+          setLoading(false);
+        }
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const filteredOrganizations = useMemo(() => {
+    if (!searchQuery) return organizations;
+    const query = searchQuery.toLowerCase();
+    return organizations.filter((org) => org.name.toLowerCase().includes(query));
+  }, [organizations, searchQuery]);
+
+  const handleCreate = async () => {
+    const created = await api.createOrganization({ name: orgName.trim() });
+    setOrganizations((prev) => [created, ...prev]);
+    setOrgName("");
+    setIsDialogOpen(false);
+  };
 
   return (
     <div className="p-8">
@@ -39,14 +78,45 @@ export default function Organizations() {
           />
         </div>
 
-        <Button>
-          <Plus className="h-4 w-4 mr-2" />
-          Create Organization
-        </Button>
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogTrigger asChild>
+            <Button>
+              <Plus className="h-4 w-4 mr-2" />
+              Create Organization
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle>Create Organization</DialogTitle>
+              <DialogDescription>Add a new tenant organization.</DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="org-name">Organization Name</Label>
+                <Input
+                  id="org-name"
+                  value={orgName}
+                  onChange={(e) => setOrgName(e.target.value)}
+                />
+              </div>
+              <div className="flex justify-end gap-3 pt-4 border-t">
+                <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
+                  Cancel
+                </Button>
+                <Button onClick={handleCreate} disabled={!orgName.trim()}>
+                  Save Organization
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
 
+      {loading && <p className="text-sm text-muted-foreground">Loading organizations...</p>}
+      {error && <p className="text-sm text-red-500">{error}</p>}
+
       <div className="grid gap-6">
-        {organizations.map((org) => (
+        {filteredOrganizations.map((org) => (
           <div key={org.id} className="bg-card rounded-lg border p-6">
             <div className="flex items-start justify-between">
               <div>

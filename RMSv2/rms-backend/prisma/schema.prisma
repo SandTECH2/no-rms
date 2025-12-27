@@ -14,6 +14,8 @@ model Organization {
   warehouses Warehouse[]
   projects   Project[]
   customers  Customer[]
+  crewMembers CrewMember[]
+  users      User[]
 }
 
 model Warehouse {
@@ -25,6 +27,8 @@ model Warehouse {
   organizationId Int
   shelves     Shelf[]
   packZones   PackZone[]
+  equipment   Equipment[]
+  projects    Project[]
 }
 
 model Shelf {
@@ -35,6 +39,7 @@ model Shelf {
   category String?
   warehouse Warehouse @relation(fields: [warehouseId], references: [id])
   warehouseId Int
+  serialItems SerialItem[]
 }
 
 model PackZone {
@@ -44,6 +49,7 @@ model PackZone {
   internalNote String?
   warehouse  Warehouse @relation(fields: [warehouseId], references: [id])
   warehouseId Int
+  projects   Project[]
 }
 
 model Equipment {
@@ -58,6 +64,7 @@ model Equipment {
   warehouse        Warehouse? @relation(fields: [warehouseId], references: [id])
   warehouseId      Int?
   serialItems      SerialItem[]
+  projectEquipment ProjectEquipment[]
   archived         Boolean   @default(false)
   createdAt        DateTime  @default(now())
 }
@@ -128,9 +135,11 @@ model Project {
   warehouseId    Int?
   packZone       PackZone? @relation(fields: [packZoneId], references: [id])
   packZoneId     Int?
-  sharedOrgs     Int[]    @default([])
+  sharedOrgs     Json?    @default("[]")
   client         Customer? @relation(fields: [clientId], references: [id])
   clientId       Int?
+  organization   Organization? @relation(fields: [organizationId], references: [id])
+  organizationId Int?
   projectManager String?
   tasks          Task[]
   equipments     ProjectEquipment[]
