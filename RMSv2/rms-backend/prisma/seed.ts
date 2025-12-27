@@ -41,7 +41,6 @@ async function main() {
         projectManager: "John Doe",
         warehouseId,
         clientId: firstCustomer?.id ?? null,
-        organizationId: org.id,
       },
       {
         name: "Corporate Event - Tech Summit",
@@ -51,13 +50,12 @@ async function main() {
         projectManager: "Jane Smith",
         warehouseId,
         clientId: secondCustomer?.id ?? null,
-        organizationId: org.id,
       },
     ],
   });
 
   await prisma.user.create({
-    data: { email: "admin@local", password: pw, name: "Admin", role: "admin", organizationId: org.id },
+    data: { email: "admin@local", password: pw, name: "Admin", role: "admin" },
   });
 
   console.log("Seed complete");
