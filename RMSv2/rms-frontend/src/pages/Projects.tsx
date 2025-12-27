@@ -92,7 +92,9 @@ export default function Projects() {
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Create New Project</DialogTitle>
-              <DialogDescription>Add a new rental or sale project to your system</DialogDescription>
+              <DialogDescription>
+                Add a new rental or sale project to your system
+              </DialogDescription>
             </DialogHeader>
 
             <div className="space-y-6 mt-4">
@@ -102,104 +104,74 @@ export default function Projects() {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="name">Project Name</Label>
-                    <Input
-                      id="name"
-                      value={formData.name}
-                      onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
-                    />
+                    <Input id="name" placeholder="Enter project name" />
                   </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="type">Type</Label>
-                    <Select
-                      value={formData.type}
-                      onValueChange={(value) => setFormData((prev) => ({ ...prev, type: value }))}
-                    >
+                    <Select>
                       <SelectTrigger id="type">
                         <SelectValue placeholder="Select type" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="Production">Production</SelectItem>
-                        <SelectItem value="Sale">Sale</SelectItem>
+                        <SelectItem value="production">Production</SelectItem>
+                        <SelectItem value="sale">Sale</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="status">Status</Label>
-                    <Select
-                      value={formData.status}
-                      onValueChange={(value) => setFormData((prev) => ({ ...prev, status: value }))}
-                    >
+                    <Select>
                       <SelectTrigger id="status">
                         <SelectValue placeholder="Select status" />
                       </SelectTrigger>
                       <SelectContent>
-                        {statusOptions.map((status) => (
-                          <SelectItem key={status.value} value={status.value}>
-                            {status.label}
-                          </SelectItem>
-                        ))}
+                        <SelectItem value="inquiry">Inquiry</SelectItem>
+                        <SelectItem value="pending">Pending</SelectItem>
+                        <SelectItem value="confirmed">Confirmed</SelectItem>
+                        <SelectItem value="on-location">On Location</SelectItem>
+                        <SelectItem value="returned">Returned</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="manager">Project Manager</Label>
-                    <Select
-                      value={formData.projectManager}
-                      onValueChange={(value) => setFormData((prev) => ({ ...prev, projectManager: value }))}
-                    >
+                    <Select>
                       <SelectTrigger id="manager">
                         <SelectValue placeholder="Select manager" />
                       </SelectTrigger>
                       <SelectContent>
-                        {crew.map((member) => (
-                          <SelectItem
-                            key={member.id}
-                            value={`${member.firstName} ${member.lastName}`}
-                          >
-                            {member.firstName} {member.lastName}
-                          </SelectItem>
-                        ))}
+                        <SelectItem value="john">John Doe</SelectItem>
+                        <SelectItem value="jane">Jane Smith</SelectItem>
+                        <SelectItem value="mike">Mike Johnson</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="warehouse">Warehouse</Label>
-                    <Select
-                      value={formData.warehouseId}
-                      onValueChange={(value) => setFormData((prev) => ({ ...prev, warehouseId: value }))}
-                    >
+                    <Select>
                       <SelectTrigger id="warehouse">
                         <SelectValue placeholder="Select warehouse" />
                       </SelectTrigger>
                       <SelectContent>
-                        {warehouses.map((warehouse) => (
-                          <SelectItem key={warehouse.id} value={String(warehouse.id)}>
-                            {warehouse.name}
-                          </SelectItem>
-                        ))}
+                        <SelectItem value="main">Main Warehouse</SelectItem>
+                        <SelectItem value="east">East Storage</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="customer">Customer</Label>
-                    <Select
-                      value={formData.customerId}
-                      onValueChange={(value) => setFormData((prev) => ({ ...prev, customerId: value }))}
-                    >
-                      <SelectTrigger id="customer">
-                        <SelectValue placeholder="Select customer" />
+                    <Label htmlFor="manager">Select coustomer</Label>
+                    <Select>
+                      <SelectTrigger id="manager">
+                        <SelectValue placeholder="Select manager" />
                       </SelectTrigger>
                       <SelectContent>
-                        {customers.map((customer) => (
-                          <SelectItem key={customer.id} value={String(customer.id)}>
-                            {customer.businessName}
-                          </SelectItem>
-                        ))}
+                        <SelectItem value="john">TechCorp AS</SelectItem>
+                        <SelectItem value="jane">EventPro Solutions</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>

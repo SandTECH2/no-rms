@@ -64,74 +64,10 @@ export default function Customers() {
           />
         </div>
 
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="h-4 w-4 mr-2" />
-              Add Customer
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-lg">
-            <DialogHeader>
-              <DialogTitle>Add Customer</DialogTitle>
-              <DialogDescription>Create a new customer profile.</DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="customer-name">Business Name</Label>
-                <Input
-                  id="customer-name"
-                  value={formData.businessName}
-                  onChange={(e) => setFormData((prev) => ({ ...prev, businessName: e.target.value }))}
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="customer-org">Org Number</Label>
-                  <Input
-                    id="customer-org"
-                    value={formData.orgNumber}
-                    onChange={(e) => setFormData((prev) => ({ ...prev, orgNumber: e.target.value }))}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="customer-email">Email</Label>
-                  <Input
-                    id="customer-email"
-                    value={formData.email}
-                    onChange={(e) => setFormData((prev) => ({ ...prev, email: e.target.value }))}
-                  />
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="customer-phone">Phone</Label>
-                  <Input
-                    id="customer-phone"
-                    value={formData.phone}
-                    onChange={(e) => setFormData((prev) => ({ ...prev, phone: e.target.value }))}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="customer-address">Address</Label>
-                  <Input
-                    id="customer-address"
-                    value={formData.address}
-                    onChange={(e) => setFormData((prev) => ({ ...prev, address: e.target.value }))}
-                  />
-                </div>
-              </div>
-              <div className="flex justify-end gap-3 pt-4 border-t">
-                <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
-                  Cancel
-                </Button>
-                <Button onClick={handleCreate} disabled={!formData.businessName}>
-                  Save Customer
-                </Button>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
+        <Button>
+          <Plus className="h-4 w-4 mr-2" />
+          Add Customer
+        </Button>
       </div>
 
       {loading && <p className="text-sm text-muted-foreground">Loading customers...</p>}
@@ -141,11 +77,21 @@ export default function Customers() {
         <table className="w-full">
           <thead>
             <tr className="border-b bg-muted/50">
-              <th className="px-6 py-4 text-left text-sm font-medium text-muted-foreground">Business Name</th>
-              <th className="px-6 py-4 text-left text-sm font-medium text-muted-foreground">Org Number</th>
-              <th className="px-6 py-4 text-left text-sm font-medium text-muted-foreground">Email</th>
-              <th className="px-6 py-4 text-left text-sm font-medium text-muted-foreground">Phone</th>
-              <th className="px-6 py-4 text-left text-sm font-medium text-muted-foreground">Address</th>
+              <th className="px-6 py-4 text-left text-sm font-medium text-muted-foreground">
+                Business Name
+              </th>
+              <th className="px-6 py-4 text-left text-sm font-medium text-muted-foreground">
+                Org Number
+              </th>
+              <th className="px-6 py-4 text-left text-sm font-medium text-muted-foreground">
+                Email
+              </th>
+              <th className="px-6 py-4 text-left text-sm font-medium text-muted-foreground">
+                Phone
+              </th>
+              <th className="px-6 py-4 text-left text-sm font-medium text-muted-foreground">
+                Address
+              </th>
             </tr>
           </thead>
           <tbody>
