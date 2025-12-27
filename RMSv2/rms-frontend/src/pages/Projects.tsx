@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Plus, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,38 +19,87 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { api, CrewMember, Customer, Project, Warehouse } from "@/lib/api";
 
-// Mock data
-const projects = [
-  {
-    id: "12345",
-    name: "Summer Festival 2024",
-    type: "Production",
-    status: "confirmed" as const,
-    projectManager: "John Doe",
-    warehouse: "Main Warehouse",
-  },
-  {
-    id: "12346",
-    name: "Corporate Event - Tech Summit",
-    type: "Sale",
-    status: "on-location" as const,
-    projectManager: "Jane Smith",
-    warehouse: "East Storage",
-  },
-  {
-    id: "12347",
-    name: "Wedding - Anderson",
-    type: "Production",
-    status: "pending" as const,
-    projectManager: "Mike Johnson",
-    warehouse: "Main Warehouse",
-  },
+const statusOptions = [
+  { label: "Inquiry", value: "inquiry" },
+  { label: "Pending", value: "pending" },
+  { label: "Confirmed", value: "confirmed" },
+  { label: "On Location", value: "on-location" },
+  { label: "Returned", value: "returned" },
 ];
 
 export default function Projects() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [customers, setCustomers] = useState<Customer[]>([]);
+  const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
+  const [crew, setCrew] = useState<CrewMember[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [formData, setFormData] = useState({
+    name: "",
+    type: "",
+    status: "",
+    projectManager: "",
+    warehouseId: "",
+    customerId: "",
+  });
+
+  useEffect(() => {
+    let isMounted = true;
+    Promise.all([api.getProjects(), api.getCustomers(), api.getWarehouses(), api.getCrew()])
+      .then(([projectData, customerData, warehouseData, crewData]) => {
+        if (isMounted) {
+          setProjects(projectData);
+          setCustomers(customerData);
+          setWarehouses(warehouseData);
+          setCrew(crewData);
+          setError(null);
+        }
+      })
+      .catch((err) => {
+        if (isMounted) {
+          setError(err.message ?? "Failed to load projects");
+        }
+      })
+      .finally(() => {
+        if (isMounted) {
+          setLoading(false);
+        }
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const filteredProjects = useMemo(() => {
+    if (!searchQuery) return projects;
+    const query = searchQuery.toLowerCase();
+    return projects.filter((project) =>
+      [project.name, project.type, project.projectManager, project.warehouse]
+        .filter(Boolean)
+        .some((value) => value?.toLowerCase().includes(query))
+    );
+  }, [projects, searchQuery]);
+
+  const handleCreate = async () => {
+    const payload = {
+      name: formData.name.trim(),
+      type: formData.type,
+      status: formData.status,
+      projectManager: formData.projectManager || undefined,
+      warehouseId: formData.warehouseId ? Number(formData.warehouseId) : undefined,
+      clientId: formData.customerId ? Number(formData.customerId) : undefined,
+    };
+
+    const created = await api.createProject(payload);
+    setProjects((prev) => [created, ...prev]);
+    setFormData({ name: "", type: "", status: "", projectManager: "", warehouseId: "", customerId: "" });
+    setIsDialogOpen(false);
+  };
 
   return (
     <div className="p-8">
@@ -80,126 +129,128 @@ export default function Projects() {
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Create New Project</DialogTitle>
-              <DialogDescription>
-                Add a new rental or sale project to your system
-              </DialogDescription>
+              <DialogDescription>Add a new rental or sale project to your system</DialogDescription>
             </DialogHeader>
-            
+
             <div className="space-y-6 mt-4">
               <div className="space-y-4">
                 <h3 className="font-semibold">General Information</h3>
-                
+
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="name">Project Name</Label>
-                    <Input id="name" placeholder="Enter project name" />
+                    <Input
+                      id="name"
+                      value={formData.name}
+                      onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
+                    />
                   </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="type">Type</Label>
-                    <Select>
+                    <Select
+                      value={formData.type}
+                      onValueChange={(value) => setFormData((prev) => ({ ...prev, type: value }))}
+                    >
                       <SelectTrigger id="type">
                         <SelectValue placeholder="Select type" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="production">Production</SelectItem>
-                        <SelectItem value="sale">Sale</SelectItem>
+                        <SelectItem value="Production">Production</SelectItem>
+                        <SelectItem value="Sale">Sale</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="status">Status</Label>
-                    <Select>
+                    <Select
+                      value={formData.status}
+                      onValueChange={(value) => setFormData((prev) => ({ ...prev, status: value }))}
+                    >
                       <SelectTrigger id="status">
                         <SelectValue placeholder="Select status" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="inquiry">Inquiry</SelectItem>
-                        <SelectItem value="pending">Pending</SelectItem>
-                        <SelectItem value="confirmed">Confirmed</SelectItem>
-                        <SelectItem value="on-location">On Location</SelectItem>
-                        <SelectItem value="returned">Returned</SelectItem>
+                        {statusOptions.map((status) => (
+                          <SelectItem key={status.value} value={status.value}>
+                            {status.label}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                   </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="manager">Project Manager</Label>
-                    <Select>
+                    <Select
+                      value={formData.projectManager}
+                      onValueChange={(value) => setFormData((prev) => ({ ...prev, projectManager: value }))}
+                    >
                       <SelectTrigger id="manager">
                         <SelectValue placeholder="Select manager" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="john">John Doe</SelectItem>
-                        <SelectItem value="jane">Jane Smith</SelectItem>
-                        <SelectItem value="mike">Mike Johnson</SelectItem>
+                        {crew.map((member) => (
+                          <SelectItem
+                            key={member.id}
+                            value={`${member.firstName} ${member.lastName}`}
+                          >
+                            {member.firstName} {member.lastName}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                   </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="warehouse">Warehouse</Label>
-                    <Select>
+                    <Select
+                      value={formData.warehouseId}
+                      onValueChange={(value) => setFormData((prev) => ({ ...prev, warehouseId: value }))}
+                    >
                       <SelectTrigger id="warehouse">
                         <SelectValue placeholder="Select warehouse" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="main">Main Warehouse</SelectItem>
-                        <SelectItem value="east">East Storage</SelectItem>
+                        {warehouses.map((warehouse) => (
+                          <SelectItem key={warehouse.id} value={String(warehouse.id)}>
+                            {warehouse.name}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="manager">Select coustomer</Label>
-                    <Select>
-                      <SelectTrigger id="manager">
-                        <SelectValue placeholder="Select manager" />
+                    <Label htmlFor="customer">Customer</Label>
+                    <Select
+                      value={formData.customerId}
+                      onValueChange={(value) => setFormData((prev) => ({ ...prev, customerId: value }))}
+                    >
+                      <SelectTrigger id="customer">
+                        <SelectValue placeholder="Select customer" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="john">TechCorp AS</SelectItem>
-                        <SelectItem value="jane">EventPro Solutions</SelectItem>
+                        {customers.map((customer) => (
+                          <SelectItem key={customer.id} value={String(customer.id)}>
+                            {customer.businessName}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="date">Select start date</Label>
-                    <Input
-                      id="date"
-                      type="date"
-                      className="w-full"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="date">Select end date</Label>
-                    <Input
-                      id="date"
-                      type="date"
-                      className="w-full"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="reference">External reference</Label>
-                    <Input id="reference" placeholder="Optional" />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="reference">Extra notes</Label>
-                    <Input id="reference" placeholder="Optional" />
                   </div>
                 </div>
               </div>
-
-              
 
               <div className="flex justify-end gap-3 pt-4 border-t">
                 <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
                   Cancel
                 </Button>
-                <Button onClick={() => setIsDialogOpen(false)}>
+                <Button
+                  onClick={handleCreate}
+                  disabled={!formData.name || !formData.type || !formData.status}
+                >
                   Create Project
                 </Button>
               </div>
@@ -208,44 +259,33 @@ export default function Projects() {
         </Dialog>
       </div>
 
+      {loading && <p className="text-sm text-muted-foreground">Loading projects...</p>}
+      {error && <p className="text-sm text-red-500">{error}</p>}
+
       <div className="bg-card rounded-lg border">
         <table className="w-full">
           <thead>
             <tr className="border-b bg-muted/50">
-              <th className="px-6 py-4 text-left text-sm font-medium text-muted-foreground">
-                Project #
-              </th>
-              <th className="px-6 py-4 text-left text-sm font-medium text-muted-foreground">
-                Name
-              </th>
-              <th className="px-6 py-4 text-left text-sm font-medium text-muted-foreground">
-                Type
-              </th>
-              <th className="px-6 py-4 text-left text-sm font-medium text-muted-foreground">
-                Status
-              </th>
-              <th className="px-6 py-4 text-left text-sm font-medium text-muted-foreground">
-                Project Manager
-              </th>
-              <th className="px-6 py-4 text-left text-sm font-medium text-muted-foreground">
-                Warehouse
-              </th>
+              <th className="px-6 py-4 text-left text-sm font-medium text-muted-foreground">Project Name</th>
+              <th className="px-6 py-4 text-left text-sm font-medium text-muted-foreground">Type</th>
+              <th className="px-6 py-4 text-left text-sm font-medium text-muted-foreground">Status</th>
+              <th className="px-6 py-4 text-left text-sm font-medium text-muted-foreground">Project Manager</th>
+              <th className="px-6 py-4 text-left text-sm font-medium text-muted-foreground">Warehouse</th>
             </tr>
           </thead>
           <tbody>
-            {projects.map((project) => (
+            {filteredProjects.map((project) => (
               <tr
                 key={project.id}
                 className="border-b last:border-0 hover:bg-muted/50 cursor-pointer transition-colors"
               >
-                <td className="px-6 py-4 text-sm font-mono">{project.id}</td>
                 <td className="px-6 py-4 text-sm font-medium">{project.name}</td>
                 <td className="px-6 py-4 text-sm">{project.type}</td>
-                <td className="px-6 py-4">
-                  <StatusBadge status={project.status} />
+                <td className="px-6 py-4 text-sm">
+                  <StatusBadge status={project.status as never} />
                 </td>
-                <td className="px-6 py-4 text-sm">{project.projectManager}</td>
-                <td className="px-6 py-4 text-sm">{project.warehouse}</td>
+                <td className="px-6 py-4 text-sm">{project.projectManager ?? ""}</td>
+                <td className="px-6 py-4 text-sm">{project.warehouse ?? ""}</td>
               </tr>
             ))}
           </tbody>
