@@ -26,8 +26,6 @@ export const createProject = async (data: {
   status: string;
   projectManager?: string;
   warehouseId?: number;
-  organizationId?: number;
-  clientId?: number;
 }) => {
   const numberInDb = `PRJ-${Date.now()}`;
   return prisma.project.create({
@@ -38,8 +36,6 @@ export const createProject = async (data: {
       numberInDb,
       projectManager: data.projectManager,
       warehouseId: data.warehouseId,
-      organizationId: data.organizationId,
-      clientId: data.clientId,
     },
   });
 };

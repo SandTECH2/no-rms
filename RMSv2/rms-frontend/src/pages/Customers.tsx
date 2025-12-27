@@ -2,15 +2,6 @@ import { useEffect, useMemo, useState } from "react";
 import { Plus, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 import { api, Customer } from "@/lib/api";
 
 export default function Customers() {
@@ -18,14 +9,6 @@ export default function Customers() {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [formData, setFormData] = useState({
-    businessName: "",
-    orgNumber: "",
-    email: "",
-    phone: "",
-    address: "",
-  });
 
   useEffect(() => {
     let isMounted = true;
@@ -62,21 +45,6 @@ export default function Customers() {
         .some((value) => value?.toLowerCase().includes(query))
     );
   }, [customers, searchQuery]);
-
-  const handleCreate = async () => {
-    const payload = {
-      businessName: formData.businessName.trim(),
-      orgNumber: formData.orgNumber.trim() || undefined,
-      email: formData.email.trim() || undefined,
-      phone: formData.phone.trim() || undefined,
-      address: formData.address.trim() || undefined,
-    };
-
-    const created = await api.createCustomer(payload);
-    setCustomers((prev) => [created, ...prev]);
-    setFormData({ businessName: "", orgNumber: "", email: "", phone: "", address: "" });
-    setIsDialogOpen(false);
-  };
 
   return (
     <div className="p-8">
