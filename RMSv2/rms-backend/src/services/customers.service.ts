@@ -7,7 +7,7 @@ export const listCustomers = async () => {
     orderBy: { id: "desc" },
   });
 
-  return customers.map((customer) => ({
+  return customers.map((customer: any) => ({
     id: customer.id,
     businessName: customer.legalName,
     orgNumber: customer.orgNumber,

@@ -10,7 +10,7 @@ export const listProjects = async () => {
     orderBy: { createdAt: "desc" },
   });
 
-  return projects.map((project) => ({
+  return projects.map((project: any) => ({
     id: project.id,
     name: project.name,
     type: project.type,
@@ -26,6 +26,8 @@ export const createProject = async (data: {
   status: string;
   projectManager?: string;
   warehouseId?: number;
+  organizationId?: number;
+  clientId?: number;
 }) => {
   const numberInDb = `PRJ-${Date.now()}`;
   return prisma.project.create({
@@ -36,6 +38,8 @@ export const createProject = async (data: {
       numberInDb,
       projectManager: data.projectManager,
       warehouseId: data.warehouseId,
+      organizationId: data.organizationId,
+      clientId: data.clientId,
     },
   });
 };
