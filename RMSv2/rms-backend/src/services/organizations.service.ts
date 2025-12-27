@@ -12,7 +12,7 @@ export const listOrganizations = async () => {
     orderBy: { id: "desc" },
   });
 
-  return orgs.map((org: any) => ({
+  return orgs.map((org) => ({
     id: org.id,
     name: org.name,
     users: org._count.users,

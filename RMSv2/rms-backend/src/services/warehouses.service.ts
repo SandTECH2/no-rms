@@ -8,7 +8,7 @@ export const listWarehouses = async () => {
     orderBy: { id: "desc" },
   });
 
-  return warehouses.map((warehouse: any) => ({
+  return warehouses.map((warehouse) => ({
     id: warehouse.id,
     name: warehouse.name,
     address: warehouse.address,

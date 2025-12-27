@@ -19,43 +19,22 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { api, CrewMember, Customer, Project, Warehouse } from "@/lib/api";
-
-const statusOptions = [
-  { label: "Inquiry", value: "inquiry" },
-  { label: "Pending", value: "pending" },
-  { label: "Confirmed", value: "confirmed" },
-  { label: "On Location", value: "on-location" },
-  { label: "Returned", value: "returned" },
-];
+import { api, Project } from "@/lib/api";
 
 export default function Projects() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [projects, setProjects] = useState<Project[]>([]);
-  const [customers, setCustomers] = useState<Customer[]>([]);
-  const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
-  const [crew, setCrew] = useState<CrewMember[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [formData, setFormData] = useState({
-    name: "",
-    type: "",
-    status: "",
-    projectManager: "",
-    warehouseId: "",
-    customerId: "",
-  });
 
   useEffect(() => {
     let isMounted = true;
-    Promise.all([api.getProjects(), api.getCustomers(), api.getWarehouses(), api.getCrew()])
-      .then(([projectData, customerData, warehouseData, crewData]) => {
+    api
+      .getProjects()
+      .then((data) => {
         if (isMounted) {
-          setProjects(projectData);
-          setCustomers(customerData);
-          setWarehouses(warehouseData);
-          setCrew(crewData);
+          setProjects(data);
           setError(null);
         }
       })
@@ -84,22 +63,6 @@ export default function Projects() {
         .some((value) => value?.toLowerCase().includes(query))
     );
   }, [projects, searchQuery]);
-
-  const handleCreate = async () => {
-    const payload = {
-      name: formData.name.trim(),
-      type: formData.type,
-      status: formData.status,
-      projectManager: formData.projectManager || undefined,
-      warehouseId: formData.warehouseId ? Number(formData.warehouseId) : undefined,
-      clientId: formData.customerId ? Number(formData.customerId) : undefined,
-    };
-
-    const created = await api.createProject(payload);
-    setProjects((prev) => [created, ...prev]);
-    setFormData({ name: "", type: "", status: "", projectManager: "", warehouseId: "", customerId: "" });
-    setIsDialogOpen(false);
-  };
 
   return (
     <div className="p-8">
@@ -240,6 +203,25 @@ export default function Projects() {
                       </SelectContent>
                     </Select>
                   </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="date">Select start date</Label>
+                    <Input id="date" type="date" className="w-full" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="date">Select end date</Label>
+                    <Input id="date" type="date" className="w-full" />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="reference">External reference</Label>
+                    <Input id="reference" placeholder="Optional" />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="reference">Extra notes</Label>
+                    <Input id="reference" placeholder="Optional" />
+                  </div>
                 </div>
               </div>
 
@@ -247,12 +229,7 @@ export default function Projects() {
                 <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
                   Cancel
                 </Button>
-                <Button
-                  onClick={handleCreate}
-                  disabled={!formData.name || !formData.type || !formData.status}
-                >
-                  Create Project
-                </Button>
+                <Button onClick={() => setIsDialogOpen(false)}>Create Project</Button>
               </div>
             </div>
           </DialogContent>
@@ -266,11 +243,21 @@ export default function Projects() {
         <table className="w-full">
           <thead>
             <tr className="border-b bg-muted/50">
-              <th className="px-6 py-4 text-left text-sm font-medium text-muted-foreground">Project Name</th>
-              <th className="px-6 py-4 text-left text-sm font-medium text-muted-foreground">Type</th>
-              <th className="px-6 py-4 text-left text-sm font-medium text-muted-foreground">Status</th>
-              <th className="px-6 py-4 text-left text-sm font-medium text-muted-foreground">Project Manager</th>
-              <th className="px-6 py-4 text-left text-sm font-medium text-muted-foreground">Warehouse</th>
+              <th className="px-6 py-4 text-left text-sm font-medium text-muted-foreground">
+                Project Name
+              </th>
+              <th className="px-6 py-4 text-left text-sm font-medium text-muted-foreground">
+                Type
+              </th>
+              <th className="px-6 py-4 text-left text-sm font-medium text-muted-foreground">
+                Status
+              </th>
+              <th className="px-6 py-4 text-left text-sm font-medium text-muted-foreground">
+                Project Manager
+              </th>
+              <th className="px-6 py-4 text-left text-sm font-medium text-muted-foreground">
+                Warehouse
+              </th>
             </tr>
           </thead>
           <tbody>

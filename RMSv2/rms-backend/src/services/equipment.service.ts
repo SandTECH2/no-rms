@@ -7,7 +7,7 @@ export const listEquipment = async () => {
     orderBy: { id: "desc" },
   });
 
-  return items.map((item: any) => ({
+  return items.map((item) => ({
     id: item.id,
     code: item.code,
     name: item.name,

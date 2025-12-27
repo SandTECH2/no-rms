@@ -24,24 +24,6 @@ async function main() {
           { legalName: "EventPro Solutions", email: "info@eventpro.no", orgNumber: "987654321" },
         ],
       },
-      crewMembers: {
-        create: [
-          {
-            firstName: "John",
-            lastName: "Doe",
-            role: "Project Manager",
-            email: "john.doe@company.no",
-            phone: "+47 111 11 111",
-          },
-          {
-            firstName: "Jane",
-            lastName: "Smith",
-            role: "Technician",
-            email: "jane.smith@company.no",
-            phone: "+47 222 22 222",
-          },
-        ],
-      },
     },
     include: { warehouses: true, customers: true },
   });
@@ -59,7 +41,6 @@ async function main() {
         projectManager: "John Doe",
         warehouseId,
         clientId: firstCustomer?.id ?? null,
-        organizationId: org.id,
       },
       {
         name: "Corporate Event - Tech Summit",
@@ -69,36 +50,12 @@ async function main() {
         projectManager: "Jane Smith",
         warehouseId,
         clientId: secondCustomer?.id ?? null,
-        organizationId: org.id,
       },
     ],
   });
 
-  if (warehouseId) {
-    await prisma.equipment.createMany({
-      data: [
-        {
-          code: "EQ001",
-          name: "Martin Mac 250 Moving Head",
-          quantity: 20,
-          available: 20,
-          pricePer: 100,
-          warehouseId,
-        },
-        {
-          code: "EQ002",
-          name: "Shure SM58 Microphone",
-          quantity: 16,
-          available: 16,
-          pricePer: 15,
-          warehouseId,
-        },
-      ],
-    });
-  }
-
   await prisma.user.create({
-    data: { email: "admin@local", password: pw, name: "Admin", role: "admin", organizationId: org.id },
+    data: { email: "admin@local", password: pw, name: "Admin", role: "admin" },
   });
 
   console.log("Seed complete");
