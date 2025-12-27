@@ -10,4 +10,4 @@ RUN npx prisma generate
 RUN npm run build
 
 EXPOSE 4000
-CMD ["sh", "-c", "npx prisma db push && npm run seed && node dist/server.js"]
+CMD ["sh", "-c", "until npx prisma db push; do echo 'Waiting for database...'; sleep 2; done && npm run seed && node dist/server.js"]
