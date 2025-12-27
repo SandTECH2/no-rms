@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { ScanLine, CheckCircle, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,42 +11,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { api, Project } from "@/lib/api";
 
 export default function Scan() {
   const [scanInput, setScanInput] = useState("");
-  const [scanInInput, setScanInInput] = useState("");
-  const [statusInput, setStatusInput] = useState("");
-  const [selectedProject, setSelectedProject] = useState("");
-  const [projects, setProjects] = useState<Project[]>([]);
-  const [scannedOut, setScannedOut] = useState<string[]>([]);
-  const [scannedIn, setScannedIn] = useState<string[]>([]);
-
-  useEffect(() => {
-    let isMounted = true;
-    api.getProjects().then((data) => {
-      if (isMounted) {
-        setProjects(data.filter((project) => ["confirmed", "on-location"].includes(project.status)));
-      }
-    });
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
-
-  const handleScanOut = () => {
-    if (!scanInput.trim()) return;
-    setScannedOut((prev) => [scanInput.trim(), ...prev]);
-    setScanInput("");
-  };
-
-  const handleScanIn = async () => {
-    if (!scanInInput.trim()) return;
-    await api.scanEquipment(scanInInput.trim());
-    setScannedIn((prev) => [scanInInput.trim(), ...prev]);
-    setScanInInput("");
-  };
 
   return (
     <div className="p-8">
@@ -72,16 +39,13 @@ export default function Scan() {
             <div className="space-y-6">
               <div className="space-y-2">
                 <Label htmlFor="project-select">Select Project</Label>
-                <Select value={selectedProject} onValueChange={setSelectedProject}>
+                <Select>
                   <SelectTrigger id="project-select">
                     <SelectValue placeholder="Choose confirmed project" />
                   </SelectTrigger>
                   <SelectContent>
-                    {projects.map((project) => (
-                      <SelectItem key={project.id} value={String(project.id)}>
-                        {project.name}
-                      </SelectItem>
-                    ))}
+                    <SelectItem value="12345">Summer Festival 2024</SelectItem>
+                    <SelectItem value="12346">Tech Summit</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -91,29 +55,18 @@ export default function Scan() {
                 <div className="flex gap-3">
                   <Input
                     id="scan-input"
+                    placeholder="Scan barcode or QR code"
                     value={scanInput}
                     onChange={(e) => setScanInput(e.target.value)}
                     className="flex-1"
                   />
-                  <Button onClick={handleScanOut} disabled={!scanInput.trim() || !selectedProject}>
-                    Add
-                  </Button>
+                  <Button>Add</Button>
                 </div>
               </div>
 
               <div className="pt-4 border-t">
                 <h3 className="font-medium mb-3">Scanned Items</h3>
-                {scannedOut.length === 0 ? (
-                  <div className="text-sm text-muted-foreground">No items scanned yet</div>
-                ) : (
-                  <ul className="space-y-2 text-sm">
-                    {scannedOut.map((item, index) => (
-                      <li key={`${item}-${index}`} className="rounded bg-muted px-3 py-2">
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
-                )}
+                <div className="text-sm text-muted-foreground">No items scanned yet</div>
               </div>
             </div>
           </div>
@@ -132,29 +85,16 @@ export default function Scan() {
                 <div className="flex gap-3">
                   <Input
                     id="scan-in-input"
-                    value={scanInInput}
-                    onChange={(e) => setScanInInput(e.target.value)}
+                    placeholder="Scan barcode or QR code"
                     className="flex-1"
                   />
-                  <Button variant="outline" onClick={handleScanIn} disabled={!scanInInput.trim()}>
-                    Return
-                  </Button>
+                  <Button variant="outline">Return</Button>
                 </div>
               </div>
 
               <div className="pt-4 border-t">
                 <h3 className="font-medium mb-3">Returned Items</h3>
-                {scannedIn.length === 0 ? (
-                  <div className="text-sm text-muted-foreground">No items returned yet</div>
-                ) : (
-                  <ul className="space-y-2 text-sm">
-                    {scannedIn.map((item, index) => (
-                      <li key={`${item}-${index}`} className="rounded bg-muted px-3 py-2">
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
-                )}
+                <div className="text-sm text-muted-foreground">No items returned yet</div>
               </div>
             </div>
           </div>
@@ -172,8 +112,7 @@ export default function Scan() {
                 <Label htmlFor="status-scan">Scan Serialized Item</Label>
                 <Input
                   id="status-scan"
-                  value={statusInput}
-                  onChange={(e) => setStatusInput(e.target.value)}
+                  placeholder="Scan barcode or QR code"
                 />
               </div>
 
@@ -192,9 +131,7 @@ export default function Scan() {
                 </Select>
               </div>
 
-              <Button className="w-full" disabled={!statusInput.trim()}>
-                Update Status
-              </Button>
+              <Button className="w-full">Update Status</Button>
             </div>
           </div>
         </TabsContent>
