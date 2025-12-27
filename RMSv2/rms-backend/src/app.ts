@@ -2,12 +2,7 @@ import express from "express";
 import helmet from "helmet";
 import cors from "cors";
 import morgan from "morgan";
-import authRoutes from "./routes/auth";
-import orgRoutes from "./routes/orgs";
-import userRoutes from "./routes/users";
-import equipmentRoutes from "./routes/equipment";
-import projectRoutes from "./routes/projects";
-import scanRoutes from "./routes/scan";
+import apiRoutes from "./routes";
 
 export function createApp() {
   const app = express();
@@ -16,14 +11,9 @@ export function createApp() {
   app.use(express.json());
   app.use(morgan("dev"));
 
-  app.use("/auth", authRoutes);
-  app.use("/orgs", orgRoutes);
-  app.use("/orgs/:orgId/users", userRoutes);
-  app.use("/orgs/:orgId/equipment", equipmentRoutes);
-  app.use("/orgs/:orgId/projects", projectRoutes);
-  app.use("/scan", scanRoutes);
+  app.use("/api", apiRoutes);
 
-  app.get("/", (req, res) => res.json({ ok: true, message: "MVP system API" }));
+  app.get("/", (req, res) => res.json({ ok: true, message: "RMS backend API" }));
 
   // error handler
   app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
